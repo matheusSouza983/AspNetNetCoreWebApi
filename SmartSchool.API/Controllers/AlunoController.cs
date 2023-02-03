@@ -12,11 +12,14 @@ namespace SmartSchool.API.Controllers
     public class AlunoController : ControllerBase
     {
         private readonly SmartContext _context;
-        public AlunoController(SmartContext context)
+
+        public readonly IRepository _repo;
+
+        public AlunoController(SmartContext context, IRepository repo)
         {
             _context = context;
+            _repo = repo;
         }
-
 
         // api/aluno
         [HttpGet]
@@ -49,9 +52,12 @@ namespace SmartSchool.API.Controllers
         [HttpPost]
         public IActionResult Post(Aluno aluno)
         {
-            _context.Add(aluno);
-            _context.SaveChanges();
-            return Ok(aluno);
+            _repo.Add(aluno);
+            if (_repo.SaveChanges())
+            {
+                return Ok(aluno);
+            }
+            return BadRequest("Aluno nao Cadastrado");
         }
 
         // api/aluno/1
@@ -61,9 +67,12 @@ namespace SmartSchool.API.Controllers
             var alu = _context.Alunos.AsNoTracking().FirstOrDefault(a => a.Id == id);
             if (alu == null) return BadRequest("Aluno nao Encontrado");
 
-            _context.Update(aluno);
-            _context.SaveChanges();
-            return Ok(aluno);
+            _repo.Update(aluno);
+            if (_repo.SaveChanges())
+            {
+                return Ok(aluno);
+            }
+            return BadRequest("Aluno nao Atualizado");
         }
 
         // api/aluno/1
@@ -73,9 +82,12 @@ namespace SmartSchool.API.Controllers
             var alu = _context.Alunos.FirstOrDefault(a => a.Id == id);
             if (alu == null) return BadRequest("Aluno nao Encontrado");
 
-            _context.Update(aluno);
-            _context.SaveChanges();
-            return Ok(aluno);
+            _repo.Update(aluno);
+            if (_repo.SaveChanges())
+            {
+                return Ok(aluno);
+            }
+            return BadRequest("Aluno nao Atualizado");
         }
 
         // api/aluno/1
@@ -85,9 +97,12 @@ namespace SmartSchool.API.Controllers
             var aluno = _context.Alunos.AsNoTracking().FirstOrDefault(a => a.Id == id);
             if (aluno == null) return BadRequest("Aluno nao Encontrado");
 
-            _context.Remove(aluno);
-            _context.SaveChanges();
-            return Ok();
+            _repo.Delete(aluno);
+            if (_repo.SaveChanges())
+            {
+                return Ok("Aluno deletado");
+            }
+            return BadRequest("Aluno nao Deletado");
         }
     }
 }
